@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { submitEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
+  let body: { email?: string } = {};
   try {
-    const body = await request.json();
+    body = await request.json();
     const { email } = body;
 
     // Validate email
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error('Waitlist submission error:', {
       message: error.message,
       stack: error.stack,
-      email: body.email,
+      email: body?.email,
     });
     return NextResponse.json(
       {
