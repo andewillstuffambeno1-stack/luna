@@ -13,6 +13,15 @@ export const metadata: Metadata = {
   title: "Lunaflight Waitlist - AI Travel Companion App Launching Soon",
   description: "Join the waitlist for Lunaflight - your AI-powered guide through official visa procedures. Get 50% off at launch and never miss a government requirement again.",
   keywords: ["visa application", "travel companion", "visa roadmap", "government procedures", "travel requirements", "visa guide"],
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+  },
   openGraph: {
     title: "Lunaflight - Government Procedures Made Simple",
     description: "Your AI-powered travel companion that guides you through official government visa, work permit, student visa, and residence procedures worldwide.",
@@ -33,6 +42,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon.ico" />
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
@@ -88,6 +99,10 @@ export default function RootLayout({
             `}
           </Script>
         )}
+        <Script
+          src="https://f.convertkit.com/ckjs/ck.5.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body className={`${inter.variable} font-display antialiased`}>
         {children}

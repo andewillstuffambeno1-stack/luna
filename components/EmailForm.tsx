@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 interface EmailFormProps {
   onSubmit?: (email: string) => void;
@@ -18,143 +17,196 @@ export default function EmailForm({
   variant = 'hero',
   onSuccess,
 }: EmailFormProps) {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [isValid, setIsValid] = useState(true);
+  const formRef = useRef<HTMLDivElement>(null);
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  useEffect(() => {
+    if (!formRef.current) return;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    setError('');
-    
-    if (value.length > 0) {
-      setIsValid(validateEmail(value));
-    } else {
-      setIsValid(true);
-    }
-  };
+    // ConvertKit form HTML with all required attributes
+    const formHTML = `
+      <form action="https://app.kit.com/forms/8766891/subscriptions" class="seva-form formkit-form" method="post" data-sv-form="8766891" data-uid="4c9fe7fc8b" data-format="inline" data-version="5" data-options="{&quot;settings&quot;:{&quot;after_subscribe&quot;:{&quot;action&quot;:&quot;message&quot;,&quot;success_message&quot;:&quot;Success! Now check your email to confirm your subscription.&quot;,&quot;redirect_url&quot;:&quot;&quot;},&quot;analytics&quot;:{&quot;google&quot;:null,&quot;fathom&quot;:null,&quot;facebook&quot;:null,&quot;segment&quot;:null,&quot;pinterest&quot;:null,&quot;sparkloop&quot;:null,&quot;googletagmanager&quot;:null},&quot;modal&quot;:{&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;sticky_bar&quot;:{&quot;display_in&quot;:&quot;top&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15}},&quot;version&quot;:&quot;5&quot;}" min-width="400 500 600 700 800">
+        <div data-style="clean">
+          <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
+          <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
+            <div class="formkit-field">
+              <input class="formkit-input" name="email_address" aria-label="Email Address" placeholder="${placeholder}" required="" type="email">
+            </div>
+            <button data-element="submit" class="formkit-submit formkit-submit">
+              <div class="formkit-spinner"><div></div><div></div><div></div></div>
+              <span class="">${buttonText}</span>
+            </button>
+          </div>
+          <div class="formkit-powered-by-convertkit-container">
+            <a href="https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic" data-element="powered-by" class="formkit-powered-by-convertkit" data-variant="dark" target="_blank" rel="nofollow">Built with Kit</a>
+          </div>
+        </div>
+      </form>
+    `;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+    formRef.current.innerHTML = formHTML;
 
-    if (!email) {
-      setError('Please enter your email address');
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      setIsValid(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        if (onSubmit) {
-          onSubmit(email);
-        }
-        if (onSuccess && data.referralLink) {
-          onSuccess(data.referralLink);
-        }
-        setEmail('');
-      } else {
-        setError(data.message || 'Something went wrong. Please try again.');
+    // Hide error alert when empty
+    const hideEmptyAlert = () => {
+      const alert = formRef.current?.querySelector('.formkit-alert');
+      if (alert && (!alert.textContent?.trim() || alert.children.length === 0)) {
+        (alert as HTMLElement).style.display = 'none';
       }
-    } catch (err) {
-      setError('Network error. Please check your connection and try again.');
-    } finally {
-      setIsLoading(false);
+    };
+
+    // Hide alert initially and after ConvertKit initializes
+    hideEmptyAlert();
+
+    // Initialize ConvertKit form
+    const initConvertKit = () => {
+      if ((window as any).CK && typeof (window as any).CK.load === 'function') {
+        (window as any).CK.load();
+        // Hide alert after initialization
+        setTimeout(hideEmptyAlert, 100);
+      } else if ((window as any).convertkit && typeof (window as any).convertkit.load === 'function') {
+        (window as any).convertkit.load();
+        setTimeout(hideEmptyAlert, 100);
+      }
+    };
+
+    // Try to initialize immediately if script is already loaded
+    initConvertKit();
+
+    // Also try after a short delay to ensure script is loaded
+    const timeoutId = setTimeout(initConvertKit, 500);
+
+    // Generate referral link using the same logic as email.ts
+    const generateReferralLink = (email: string): string => {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://lunaflight.com';
+      const encodedEmail = encodeURIComponent(email);
+      const timestamp = Date.now();
+      // Create a hash similar to email.ts logic
+      const hash = btoa(`${email}-${timestamp}`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+      return `${baseUrl}/waitlist?ref=${hash}&email=${encodedEmail}`;
+    };
+
+    // Listen for form submission success
+    const handleFormSuccess = () => {
+      const form = formRef.current?.querySelector('form');
+      if (form) {
+        const emailInput = form.querySelector('input[name="email_address"]') as HTMLInputElement;
+        const email = emailInput?.value || '';
+        
+        if (email && onSuccess) {
+          // Generate referral link using proper logic
+          const referralLink = generateReferralLink(email);
+          onSuccess(referralLink);
+        }
+        
+        // Track conversion
+        if (typeof window !== 'undefined') {
+          if ((window as any).gtag) {
+            (window as any).gtag('event', 'waitlist_signup', {
+              event_category: 'engagement',
+              event_label: 'email_submission',
+            });
+          }
+          if ((window as any).fbq) {
+            (window as any).fbq('track', 'Lead');
+          }
+        }
+      }
+    };
+
+    // Track if we've already handled success to avoid duplicate calls
+    let successHandled = false;
+    // Store email before form submission (in case form is cleared after submission)
+    let submittedEmail = '';
+
+    // Listen for success message and manage alert visibility
+    const observer = new MutationObserver(() => {
+      const successAlert = formRef.current?.querySelector('.formkit-alert-success');
+      if (successAlert && successAlert.textContent?.trim() && !successHandled) {
+        successHandled = true;
+        // Use stored email if available, otherwise try to get from form
+        const email = submittedEmail || (() => {
+          const form = formRef.current?.querySelector('form');
+          const emailInput = form?.querySelector('input[name="email_address"]') as HTMLInputElement;
+          return emailInput?.value || '';
+        })();
+        
+        if (email && onSuccess) {
+          const referralLink = generateReferralLink(email);
+          onSuccess(referralLink);
+        }
+      }
+      
+      // Hide error alert if empty, show if it has content
+      const errorAlert = formRef.current?.querySelector('.formkit-alert-error');
+      if (errorAlert) {
+        if (!errorAlert.textContent?.trim() || errorAlert.children.length === 0) {
+          (errorAlert as HTMLElement).style.display = 'none';
+        } else {
+          (errorAlert as HTMLElement).style.display = 'block';
+        }
+      }
+    });
+
+    if (formRef.current) {
+      observer.observe(formRef.current, { childList: true, subtree: true, characterData: true });
     }
-  };
 
-  const isDark = variant === 'hero';
-  const inputClasses = `flex w-full min-w-0 flex-1 resize-none overflow-hidden ${
-    isDark
-      ? 'text-white bg-card-dark border-border-dark placeholder:text-gray-400'
-      : 'text-text-light dark:text-text-dark bg-transparent border-border-light dark:border-border-dark placeholder:text-subtext-light dark:placeholder:text-subtext-dark'
-  } focus:outline-0 focus:ring-0 focus:border-primary h-full px-4 text-base font-normal leading-normal rounded-none border-x-0 ${
-    !isValid ? 'border-red-500' : ''
-  }`;
+    // Also listen for ConvertKit form submission events
+    const form = formRef.current?.querySelector('form');
+    if (form) {
+      // Capture email before form submission
+      form.addEventListener('submit', (e) => {
+        // Reset success handled flag on new submission
+        successHandled = false;
+        const emailInput = form.querySelector('input[name="email_address"]') as HTMLInputElement;
+        if (emailInput?.value) {
+          submittedEmail = emailInput.value;
+        }
+      });
+    }
 
-  const buttonClasses = `flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 md:h-12 md:px-5 bg-primary text-white text-sm font-bold leading-normal tracking-wide md:text-base hover:bg-primary/90 transition-colors ${
-    isLoading ? 'opacity-70 cursor-not-allowed' : ''
-  }`;
+    // Listen for ConvertKit custom events if available
+    let handleConvertKitSuccess: ((event: any) => void) | null = null;
+    if (typeof window !== 'undefined') {
+      handleConvertKitSuccess = (event: any) => {
+        if (!successHandled) {
+          // Try to get email from event, stored email, or form
+          const email = event.detail?.email || submittedEmail || (() => {
+            const form = formRef.current?.querySelector('form');
+            const emailInput = form?.querySelector('input[name="email_address"]') as HTMLInputElement;
+            return emailInput?.value || '';
+          })();
+          
+          if (email) {
+            successHandled = true;
+            const referralLink = generateReferralLink(email);
+            if (onSuccess) {
+              onSuccess(referralLink);
+            }
+          }
+        }
+      };
+
+      // Listen for ConvertKit form success events
+      window.addEventListener('convertkit:subscribed', handleConvertKitSuccess);
+      window.addEventListener('ck:subscribed', handleConvertKitSuccess);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+      if (typeof window !== 'undefined' && handleConvertKitSuccess) {
+        window.removeEventListener('convertkit:subscribed', handleConvertKitSuccess);
+        window.removeEventListener('ck:subscribed', handleConvertKitSuccess);
+      }
+    };
+  }, [placeholder, buttonText, onSuccess]);
+
+  const variantClass = variant === 'hero' ? 'convertkit-form-hero' : 'convertkit-form-cta';
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-[520px]">
-      <div className="flex w-full flex-1 items-stretch rounded-lg h-14 md:h-16">
-        <div
-          className={`text-gray-400 flex border ${
-            isDark
-              ? 'border-border-dark bg-card-dark'
-              : 'border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark'
-          } items-center justify-center pl-4 rounded-l-lg border-r-0`}
-        >
-          <span className="material-symbols-outlined">mail</span>
-        </div>
-        <input
-          type="email"
-          value={email}
-          onChange={handleChange}
-          placeholder={placeholder}
-          className={inputClasses}
-          disabled={isLoading}
-          required
-        />
-        <div
-          className={`flex items-center justify-center rounded-r-lg border-l-0 border ${
-            isDark
-              ? 'border-border-dark bg-card-dark'
-              : 'border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark'
-          } pr-2`}
-        >
-          <motion.button
-            type="submit"
-            className={buttonClasses}
-            disabled={isLoading}
-            whileHover={{ scale: isLoading ? 1 : 1.02 }}
-            whileTap={{ scale: isLoading ? 1 : 0.98 }}
-          >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="animate-spin">⏳</span>
-                <span className="truncate">Joining...</span>
-              </span>
-            ) : (
-              <span className="truncate">{buttonText}</span>
-            )}
-          </motion.button>
-        </div>
-      </div>
-      {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-2 text-sm text-red-500"
-        >
-          {error}
-        </motion.p>
-      )}
-    </form>
+    <div className={`w-full max-w-[520px] ${variantClass}`}>
+      <div ref={formRef} className="convertkit-form-wrapper" />
+    </div>
   );
 }
 

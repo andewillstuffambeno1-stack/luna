@@ -7,22 +7,22 @@ const features = [
   {
     title: 'Onboarding Questionnaire',
     description: 'Simple, intuitive questions to understand your travel needs',
-    image: 'https://via.placeholder.com/400x800/2563eb/ffffff?text=Questionnaire',
+    image: '/questionnaire.png',
   },
   {
     title: 'Country Roadmap',
     description: 'Personalized checklist with progress tracking and milestones',
-    image: 'https://via.placeholder.com/400x800/000000/ffffff?text=Roadmap',
+    image: '/roadmap.png',
   },
   {
     title: 'Document Verification',
     description: 'Secure upload and verification of your travel documents',
-    image: 'https://via.placeholder.com/400x800/2563eb/ffffff?text=Documents',
+    image: '/documents.png',
   },
   {
     title: 'History Timeline',
     description: 'Track your journey and view all completed procedures',
-    image: 'https://via.placeholder.com/400x800/000000/ffffff?text=History',
+    image: '/history.png',
   },
 ];
 
@@ -74,11 +74,16 @@ export default function FeatureShowcase() {
                   style={{ zIndex: index === currentIndex ? 10 : 1 }}
                 >
                   <div className="w-full h-full max-w-sm mx-auto flex items-center justify-center bg-card-dark rounded-lg border border-border-dark overflow-hidden">
-                    <div
-                      className="w-full h-full bg-cover bg-center bg-no-repeat"
+                    <img
+                      src={feature.image}
+                      alt={feature.title}
+                      className="w-full h-full object-cover"
                       style={{
-                        backgroundImage: `url(${feature.image})`,
                         filter: isDarkMode ? 'none' : 'invert(1)',
+                      }}
+                      onError={(e) => {
+                        console.error(`Failed to load image: ${feature.image}`);
+                        e.currentTarget.style.display = 'none';
                       }}
                     />
                   </div>

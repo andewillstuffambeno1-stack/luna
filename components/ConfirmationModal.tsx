@@ -72,9 +72,18 @@ export default function ConfirmationModal({ isOpen, onClose, referralLink }: Con
                 <h3 className="text-2xl font-bold text-text-dark mb-2">
                   You're on the List! 🎉
                 </h3>
-                <p className="text-subtext-dark mb-6">
+                <p className="text-subtext-dark mb-4">
                   Thanks for joining! Share your referral link and help others discover Lunaflight.
                 </p>
+                
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-6">
+                  <p className="text-sm text-text-dark flex items-start gap-2">
+                    <span className="material-symbols-outlined text-primary text-lg flex-shrink-0 mt-0.5">info</span>
+                    <span>
+                      <strong>Check your spam folder!</strong> Our confirmation email might have landed there. Don't miss out on your early bird benefits.
+                    </span>
+                  </p>
+                </div>
 
                 <div className="bg-card-dark rounded-lg p-4 mb-4 border border-border-dark">
                   <p className="text-xs text-subtext-dark mb-2 text-left">

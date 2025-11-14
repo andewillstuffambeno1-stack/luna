@@ -104,3 +104,128 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* ConvertKit Form Styles */
+.convertkit-form-wrapper {
+  width: 100%;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] {
+  max-width: 100%;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-field {
+  flex: 1 1 auto;
+  min-width: 200px;
+  margin: 0;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-input:focus {
+  outline: none;
+  border-color: #1677be;
+  box-shadow: 0 0 0 3px rgba(22, 119, 190, 0.1);
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-submit {
+  flex: 0 0 auto;
+  padding: 14px 28px !important;
+  background: #1677be !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-submit:hover {
+  background: #0f5a8f !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 119, 190, 0.3);
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-powered-by-convertkit-container {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-powered-by-convertkit {
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-alert {
+  margin: 0 0 12px 0;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  list-style: none;
+}
+
+/* Hide alert when empty (no list items or only whitespace) */
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-alert:empty {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+}
+
+/* Also hide if it only contains empty list items */
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-alert:not(:has(li)) {
+  display: none !important;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-alert-success {
+  background: #d3fbeb;
+  border-color: #10bf7a;
+  color: #0c905c;
+}
+
+.convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-alert-error {
+  background: #fde8e2;
+  border-color: #f2643b;
+  color: #ea4110;
+}
+
+/* Hero variant - semi-transparent background for overlay */
+.convertkit-form-hero .formkit-form[data-uid="4c9fe7fc8b"] .formkit-input {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-fields {
+    flex-direction: column;
+  }
+  
+  .convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-field,
+  .convertkit-form-wrapper .formkit-form[data-uid="4c9fe7fc8b"] .formkit-submit {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
