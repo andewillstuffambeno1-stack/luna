@@ -21,6 +21,7 @@ export const metadata: Metadata = {
     apple: [
       { url: '/icon.svg', type: 'image/svg+xml' },
     ],
+    shortcut: '/favicon.ico',
   },
   openGraph: {
     title: "Lunaflight - Government Procedures Made Simple",
@@ -44,6 +45,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="alternate icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
