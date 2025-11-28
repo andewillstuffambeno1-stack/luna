@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { calculateCountdown, formatTimeUnit, type CountdownTime } from '@/lib/countdown';
 
 const benefits = [
@@ -11,20 +11,80 @@ const benefits = [
   'Lifetime access to automatic day/night mode interface',
 ];
 
+const STORAGE_KEY = 'earlyBirdLaunchDate';
+
+function getLaunchDate(): Date {
+  if (typeof window === 'undefined') {
+    // Server-side: return a placeholder (will be updated on client)
+    return new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
+  }
+
+  try {
+    const storedDate = localStorage.getItem(STORAGE_KEY);
+    if (storedDate) {
+      const launchDate = new Date(storedDate);
+      // Validate the date is valid
+      if (isNaN(launchDate.getTime())) {
+        // Invalid date, create a new one
+        const newDate = new Date();
+        newDate.setDate(newDate.getDate() + 60);
+        localStorage.setItem(STORAGE_KEY, newDate.toISOString());
+        return newDate;
+      }
+      // Only reset if the date has actually passed (with a small buffer)
+      if (launchDate.getTime() <= Date.now() - 1000) {
+        const newDate = new Date();
+        newDate.setDate(newDate.getDate() + 60);
+        localStorage.setItem(STORAGE_KEY, newDate.toISOString());
+        return newDate;
+      }
+      return launchDate;
+    }
+
+    // First time: set launch date to 60 days from now
+    const launchDate = new Date();
+    launchDate.setDate(launchDate.getDate() + 60);
+    localStorage.setItem(STORAGE_KEY, launchDate.toISOString());
+    return launchDate;
+  } catch (error) {
+    // If localStorage fails (e.g., private browsing), fall back to session-based date
+    console.warn('localStorage not available, using session-based countdown');
+    const launchDate = new Date();
+    launchDate.setDate(launchDate.getDate() + 60);
+    return launchDate;
+  }
+}
+
 export default function EarlyBirdBenefits() {
-  const [countdown, setCountdown] = useState<CountdownTime>({ days: 60, hours: 0, minutes: 0, seconds: 0 });
+  // Use ref to store launch date so it's only calculated once per component instance
+  const launchDateRef = useRef<Date | null>(null);
+  
+  const [countdown, setCountdown] = useState<CountdownTime>(() => {
+    // Initialize from localStorage if available (client-side only)
+    if (typeof window !== 'undefined') {
+      const launchDate = getLaunchDate();
+      launchDateRef.current = launchDate;
+      return calculateCountdown(launchDate);
+    }
+    return { days: 60, hours: 0, minutes: 0, seconds: 0 };
+  });
   const [socialProof, setSocialProof] = useState(2847);
 
   useEffect(() => {
-    // Set launch date to 60 days from now
-    const launchDate = new Date();
-    launchDate.setDate(launchDate.getDate() + 60);
+    // Ensure we have a launch date (use ref if already set, otherwise get from storage)
+    if (!launchDateRef.current) {
+      launchDateRef.current = getLaunchDate();
+    }
+    const launchDate = launchDateRef.current;
 
     const updateCountdown = () => {
       setCountdown(calculateCountdown(launchDate));
     };
 
+    // Update immediately
     updateCountdown();
+    
+    // Then update every second
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
